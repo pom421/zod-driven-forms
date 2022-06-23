@@ -4,11 +4,11 @@ import React from "react";
 import * as z from "zod";
 import { formatISO, isAfter } from "date-fns";
 import { Config } from "./types";
-import { useZodForm } from "./lib";
-import { formatZodErrors } from "./debug";
+import { useZodForm } from "./lib/useZodForm";
+import { formatZodErrors } from "./utils/debug";
 import { FormProvider } from "react-hook-form";
 import isEqual from "lodash/isEqual";
-import { BooleanInput } from "./BooleanInput";
+import { BooleanInput } from "./components/BooleanInput";
 /**
  * Note :
  * - une value d'un input html est forcément un string, string[], number ou undefined.
@@ -124,7 +124,7 @@ const config: Config<typeof userSchema> = {
     }
   },
   */
-  ui2: [
+  ui: [
     "age",
     {
       id: "date",
@@ -161,10 +161,10 @@ export default function App() {
     register,
     control,
     formState: { errors },
-    // generatedUIFields,
+    generatedUIFields,
   } = methods;
 
-  // console.log("generatedUIFields", generatedUIFields);
+  console.log("generatedUIFields", generatedUIFields);
 
   const onSubmit = (data: UserFormInputSchema) => console.log(data);
 
@@ -211,7 +211,7 @@ export default function App() {
         </p>
  */}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {/* {generatedUIFields} */}
+          {generatedUIFields}
         </div>
 
         <input type="submit" />

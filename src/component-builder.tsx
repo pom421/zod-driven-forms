@@ -1,15 +1,15 @@
 import React from "react";
-import { BooleanInput } from "./BooleanInput";
-import { TextInput } from "./TextInput";
+import { BooleanInput } from "./components/BooleanInput";
+import { TextInput } from "./components/TextInput";
 
-export function addReactComponents({
+export function buildComponent({
   key,
   type,
   label,
 }: {
   key: string;
   type: string;
-  label: string;
+  label?: string | undefined;
 }) {
   if (type === "boolean")
     return <BooleanInput key={key} name={key} label={label} />;
