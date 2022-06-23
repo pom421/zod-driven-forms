@@ -1,3 +1,4 @@
+import { FieldError } from "react-hook-form";
 import * as z from "zod";
 
 // TODO : à supprimer ?
@@ -49,3 +50,7 @@ export function isUserUIElement<T extends z.ZodType<any, any, any>>(
 ): element is UserUIElement<T> {
   return typeof element?.id === "string" && element.id.lengh;
 }
+
+export type ZodErrors<T extends z.ZodType<any, any, any>> = {
+  [key in SingleProperty<T>]: FieldError | undefined;
+};

@@ -5,10 +5,9 @@ import * as z from "zod";
 import { formatISO, isAfter } from "date-fns";
 import { Config } from "./types";
 import { useZodForm } from "./lib/useZodForm";
-import { formatZodErrors } from "./utils/debug";
 import { FormProvider } from "react-hook-form";
 import isEqual from "lodash/isEqual";
-import { BooleanInput } from "./components/BooleanInput";
+import { formatZodErrors } from "./utils/debug";
 /**
  * Note :
  * - une value d'un input html est forcément un string, string[], number ou undefined.
@@ -42,12 +41,8 @@ import { BooleanInput } from "./components/BooleanInput";
 
 console.log("isEqual", isEqual(true, "true"));
 
-function identity<Type>(arg: Type): Type {
-  return arg;
-}
-
 // const petPersons = ["cat", "dog", "bird", "none"] as const;
-const petPersons = ["cat", "dog", "bird", "none"];
+const petPersons = ["cat", "dog", "bird", "none"] as const;
 
 const userSchema = z.object({
   nom: z.string().min(4, { message: "4 caractères minimum pour le nom" }),
@@ -103,8 +98,7 @@ const userSchema = z.object({
       message: "Le champ doit être true ou false uniquement"
     }),
   */
-  // petPerson: z.enum(petPersons),
-  //petPerson: z.union([z.literal(petPersons[0]), z.literal("dog")])
+  petPerson: z.enum(petPersons),
 });
 
 // 13 - type input =  { nom: string, age: number, date: string }
@@ -141,7 +135,7 @@ const config: Config<typeof userSchema> = {
     // Conversion de date en string ISO via date-fns
     date: formatISO(new Date(), { representation: "date" }),
     admin: true,
-    // petPerson: "cat",
+    petPerson: "cat",
   },
   //orderComponents: ["age", "nom"]
 };
@@ -157,9 +151,8 @@ export default function App() {
 
   const {
     handleSubmit,
-    // watch,
+    watch,
     register,
-    control,
     formState: { errors },
     generatedUIFields,
   } = methods;
@@ -171,7 +164,7 @@ export default function App() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <label>
+        {/* <label>
           Nom
           <input type="text" placeholder="Nom" {...register("nom")} />
         </label>
@@ -195,7 +188,7 @@ export default function App() {
             Est admin?&nbsp;
             <BooleanInput name="admin" />
           </label>
-        </p>
+        </p> */}
 
         {/* <p>
           <label>
@@ -216,7 +209,7 @@ export default function App() {
 
         <input type="submit" />
 
-        {/* <pre>
+        <pre>
           {JSON.stringify(
             {
               errors: formatZodErrors(errors),
@@ -224,7 +217,7 @@ export default function App() {
             null,
             2
           )}
-        </pre> */}
+        </pre>
       </form>
     </FormProvider>
   );

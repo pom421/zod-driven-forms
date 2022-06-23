@@ -1,11 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Config,
-  isUserUIElement,
-  JSONSchemaTypes,
-  UserUIElement,
-} from "../types";
+import { Config, isUserUIElement, JSONSchemaTypes } from "../types.d";
 import { z } from "zod";
 import { generateSchema } from "@anatine/zod-openapi";
 import { buildComponent } from "../component-builder";
@@ -21,11 +16,15 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   // Clone de l'ensemble des champs.
   const propertiesClone = { ...properties } as JSONSchemaTypes<T>;
 
+  console.log("propertiesClone", JSON.stringify(propertiesClone, null, 2));
+
   // On parcourt les éléments
   let res = config.ui.map((elt) => {
     // Cas string.
     if (!isUserUIElement<T>(elt)) {
       delete propertiesClone[elt];
+
+      console.log(" propertiesClone[elt].type", propertiesClone[elt].type);
 
       return {
         id: elt,
@@ -35,9 +34,14 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
     } else {
       // Cas élément UIElement.
       delete propertiesClone[elt.id];
+
+      console.log(
+        " propertiesClone[elt.id].type",
+        propertiesClone[elt.id].type
+      );
       return {
-        ...(elt as UserUIElement<T>),
-        type: propertiesClone[(elt as UserUIElement<T>).id].type,
+        ...elt,
+        type: propertiesClone[elt.id].type,
       };
     }
   });
@@ -45,6 +49,7 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   // On ajoute les champs qui n'ont pas été renseignés explicitement dans config.ui.
   res.concat(
     Object.entries(propertiesClone).map((elt) => {
+      console.log("elt[1].type", elt[1].type);
       return {
         id: elt[0],
         label: "",
