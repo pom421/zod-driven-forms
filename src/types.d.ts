@@ -34,6 +34,7 @@ export type UserUIElement<T extends z.ZodType<any, any, any>> = {
   uiComponent?: "datepicker" | undefined;
   label?: string | undefined;
   placeholder?: string | undefined;
+  autocomplete?: string | undefined;
 };
 
 // Le type final, normalisé, qui servira pour nos traitements.

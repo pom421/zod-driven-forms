@@ -29,36 +29,30 @@ import { formatZodErrors } from "./utils/debug";
  * Côté front, les inputs créés automatiquement seront envoyés dans la console JS. Comme ça, on pourra aussi s'en servir comme d'un scaffold et tout customiser si besoin.
  *
  * Gérer les inputs :
- * - texte
- * - number avec composant UI flêche pour incrémenter ou décrémenter
- * - booléen
- * - date comme un string formaté ISO avec composant UI datepicker
+ * - number avec composant UI flêche pour incrémenter ou décrémenter OK
+ * - booléen OK
+ * - date comme un string formaté ISO avec composant UI datepicker OK
  * - select avec liste de choix fermée (cf. ligne suivante)
+ * - texte avec text et textArea
  * - boutons groupe pour liste de choix fermée (ce widget et le précédent pourront tous les 2 choisir dans un zod enum, donc 2 façons de rentrer les mêmes données)
  * - select autocomplete asynchrone ?
  */
 
-// const petPersons = ["cat", "dog", "bird", "none"] as const;
 const petPersons = ["cat", "dog", "bird", "none"] as const;
 
 const userSchema = z.object({
   nom: z.string().min(4, { message: "4 caractères minimum pour le nom" }),
   age: z
-    // 7 - invalid_type_error permet de customiser le message si pas de type nubmer
     .number({ invalid_type_error: "Un nombre est attendu" })
     .int({ message: "Un nombre entier est attendu" })
-    // 8 - contrôle métier exemple
     .refine((val) => val > 18, { message: "Vous devez être majeur" }),
   date: z
     .string()
     .min(1, { message: "La date est requise" })
-    // 9 - En sortie, ça sera une vraie Date
     .transform((val) => new Date(val))
-    // 10 - contrôle pour vérifier que c'est une représentation OK d'une date
     .refine((val) => val.toString() !== "Invalid Date", {
       message: "Le format de date est incorrect",
     })
-    // 11 - contrôle métier exemple
     .refine((val) => isAfter(val, new Date("2022-01-01")), {
       message: "La date doit être postérieure au 1er janvier 2022",
     }),
@@ -71,6 +65,7 @@ type UserFormInputSchema = z.input<typeof userSchema>;
 const config: Config<typeof userSchema> = {
   schema: userSchema,
   ui: [
+    { id: "nom", label: "Votre nom", placeholder: "ex: martin" },
     { id: "age", label: "Votre âge" },
     {
       id: "date",
@@ -114,32 +109,6 @@ export default function App() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* <label>
-          Nom
-          <input type="text" placeholder="Nom" {...register("nom")} />
-        </label>
-
-        <label>
-          Âge
-          <input
-            type="number"
-            placeholder="Age"
-            {...register("age", { valueAsNumber: true })}
-          />
-        </label>
-
-        <label>
-          Date début contrat
-          <input type="date" placeholder="Date" {...register("date")} />
-        </label>
-
-        <p>
-          <label>
-            Est admin?&nbsp;
-            <BooleanInput name="admin" />
-          </label>
-        </p> */}
-
         {/* <p>
           <label>
             Pet preference

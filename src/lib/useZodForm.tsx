@@ -22,7 +22,7 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   const propertiesClone = { ...properties } as JSONSchemaTypes<T>;
 
   // On parcourt les éléments
-  let res = config.ui.map((elt) => {
+  let customisedElements = config.ui.map((elt) => {
     // Cas string.
     if (!isUserUIElement<T>(elt)) {
       const element = {
@@ -45,17 +45,16 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   });
 
   // On ajoute les champs qui n'ont pas été renseignés explicitement dans config.ui.
-  res.concat(
-    Object.entries(propertiesClone).map((elt) => {
+  return [
+    ...customisedElements,
+    ...Object.entries(propertiesClone).map((elt) => {
       return {
         id: elt[0],
         label: "",
         type: elt[1].type,
       };
-    })
-  );
-
-  return res;
+    }),
+  ];
 }
 
 export function useZodForm<T extends z.ZodType<any, any, any>>(
@@ -73,16 +72,12 @@ export function useZodForm<T extends z.ZodType<any, any, any>>(
     JSON.stringify(normalizedElements, null, 2)
   );
 
-  const generatedUIFields = normalizedElements.map(
-    ({ id, type, label, uiComponent }) => {
-      return buildComponent({
-        key: id as string,
-        type,
-        label,
-        uiComponent,
-      });
-    }
-  );
+  const generatedUIFields = normalizedElements.map(({ id, ...rest }) => {
+    return buildComponent({
+      key: id as string,
+      ...rest,
+    });
+  });
 
   return {
     generatedUIFields,

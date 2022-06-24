@@ -4,9 +4,13 @@ import { useFormContext } from "react-hook-form";
 export function NumberInput({
   name,
   label = "Label",
+  autocomplete = "off",
+  placeholder = "",
 }: {
   name: string;
   label: string | undefined;
+  autocomplete?: string | undefined;
+  placeholder?: string | undefined;
 }) {
   const { register } = useFormContext(); // retrieve all hook methods
 
@@ -16,7 +20,8 @@ export function NumberInput({
       <input
         type="number"
         {...register(name, { valueAsNumber: true })}
-        autoComplete="off"
+        autoComplete={autocomplete}
+        placeholder={placeholder}
       />
     </label>
   );
