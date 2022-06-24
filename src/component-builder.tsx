@@ -2,6 +2,7 @@ import { BooleanInput } from "./components/BooleanInput";
 import { DateInput } from "./components/DateInput";
 import { NumberInput } from "./components/NumberInput";
 import { TextInput } from "./components/TextInput";
+import { match, P } from "ts-pattern";
 
 export function buildComponent({
   key,
@@ -14,23 +15,15 @@ export function buildComponent({
   label?: string | undefined;
   uiComponent?: string | undefined;
 }) {
-  switch (type) {
-    case "boolean": {
-      return <BooleanInput key={key} name={key} label={label} />;
-    }
-    case "integer": {
-      return <NumberInput key={key} name={key} label={label} />;
-    }
-    case "string": {
-      switch (uiComponent) {
-        case "datepicker": {
-          return <DateInput key={key} name={key} label={label} />;
-        }
-      }
-      break;
-    }
-    default: {
-      return <TextInput key={key} name={key} label={label} />;
-    }
-  }
+  return match([type, uiComponent])
+    .with(["boolean", P._], () => (
+      <BooleanInput key={key} name={key} label={label} />
+    ))
+    .with(["integer", P._], () => (
+      <NumberInput key={key} name={key} label={label} />
+    ))
+    .with(["string", "datepicker"], () => (
+      <DateInput key={key} name={key} label={label} />
+    ))
+    .otherwise(() => <TextInput key={key} name={key} label={label} />);
 }

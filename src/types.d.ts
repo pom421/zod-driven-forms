@@ -20,7 +20,7 @@ export type Config<T extends z.ZodType<any, any, any>> = {
 // Les informations récupérées de la génération du JSON Schema.
 // TODO: à compléter en fonction des besoins.
 export type JsonElement = {
-  type: string;
+  type: "string" | "boolean" | "integer";
   format?: string | undefined;
   enum?: string | undefined;
 };
@@ -31,7 +31,7 @@ type SingleProperty<T extends z.ZodType<any, any, any>> = keyof z.input<T>;
 // L'utilisateur renseigne des éléments supplémentaire pour le champ.
 export type UserUIElement<T extends z.ZodType<any, any, any>> = {
   id: SingleProperty<T>;
-  uiComponent?: "datepicker" | "number" | undefined;
+  uiComponent?: "datepicker" | undefined;
   label?: string | undefined;
   placeholder?: string | undefined;
 };

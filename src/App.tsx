@@ -6,7 +6,6 @@ import { formatISO, isAfter } from "date-fns";
 import { Config } from "./types";
 import { useZodForm } from "./lib/useZodForm";
 import { FormProvider } from "react-hook-form";
-import isEqual from "lodash/isEqual";
 import { formatZodErrors } from "./utils/debug";
 /**
  * Note :
@@ -63,61 +62,16 @@ const userSchema = z.object({
     .refine((val) => isAfter(val, new Date("2022-01-01")), {
       message: "La date doit être postérieure au 1er janvier 2022",
     }),
-  /*
-  // => KO car on veut au final un string en input et ici ça rend une Date
-  dateFin: z
-    .preprocess((arg) => {
-      if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
-    }, z.date())
-    .refine((val) => val.toString() !== "Invalid Date", {
-      message: "Le format de date est incorrect"
-    })
-    .refine((val) => isAfter(val, new Date("2022-01-01")), {
-      message: "La date doit être postérieure au 1er janvier 2022"
-    }),
-    */
-  /*
-  admin: z
-    // 12 - on accepte des vrais booléens comme les litéraux "true" et "false". En sortie, ça sera de vrais booléens
-    .union([z.boolean(), z.literal("true"), z.literal("false")])
-    .transform((val) =>
-      val === "true" ? true : val === "false" ? false : val
-    ),
-    */
   admin: z.boolean(),
-  /*
-  developer: z
-    .preprocess((val) => {
-      if (typeof val === "string") {
-        return val === "true" ? true : val === "false" ? false : undefined;
-      }
-    }, z.boolean())
-    .refine((val) => val !== undefined, {
-      message: "Le champ doit être true ou false uniquement"
-    }),
-  */
   petPerson: z.enum(petPersons),
 });
 
-// 13 - type input =  { nom: string, age: number, date: string }
 type UserFormInputSchema = z.input<typeof userSchema>;
-// 14 - type output = { nom: string, age: number, date: date }
-type UserFormOutputSchema = z.output<typeof userSchema>;
 
 const config: Config<typeof userSchema> = {
   schema: userSchema,
-  /*
-  ui: {
-    date: {
-      label: "Date de fin"
-    },
-    admin: {
-      label: "Est-il admin ?"
-    }
-  },
-  */
   ui: [
-    { id: "age", label: "Votre âge", uiComponent: "number" },
+    { id: "age", label: "Votre âge" },
     {
       id: "date",
       label: "Date de fin",
@@ -131,12 +85,10 @@ const config: Config<typeof userSchema> = {
   defaultValues: {
     nom: "John",
     age: 15,
-    // Conversion de date en string ISO via date-fns
     date: formatISO(new Date(), { representation: "date" }),
     admin: true,
     petPerson: "cat",
   },
-  //orderComponents: ["age", "nom"]
 };
 
 let renderCount = 0;

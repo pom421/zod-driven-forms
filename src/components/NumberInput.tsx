@@ -13,7 +13,11 @@ export function NumberInput({
   return (
     <label>
       {label}
-      <input type="number" {...register(name, { valueAsNumber: true })} />
+      <input
+        type="number"
+        {...register(name, { valueAsNumber: true })}
+        autoComplete="off"
+      />
     </label>
   );
 }
