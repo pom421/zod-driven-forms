@@ -1,11 +1,13 @@
+import type { Config } from "./types";
+
 import "./styles.css";
 
 import React from "react";
 import * as z from "zod";
 import { formatISO, isAfter } from "date-fns";
-import { Config } from "./types";
-import { useZodForm } from "./lib/useZodForm";
 import { FormProvider } from "react-hook-form";
+
+import { useZodForm } from "./lib/useZodForm";
 import { formatZodErrors } from "./utils/debug";
 /**
  * Note :

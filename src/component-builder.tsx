@@ -1,9 +1,11 @@
+import type { UIComponent } from "./types";
+
+import { match, P } from "ts-pattern";
+
 import { BooleanInput } from "./components/BooleanInput";
 import { DateInput } from "./components/DateInput";
 import { NumberInput } from "./components/NumberInput";
 import { TextInput } from "./components/TextInput";
-import { match, P } from "ts-pattern";
-import { UIComponent } from "./types";
 import { TextAreaInput } from "./components/TextAreaInput";
 import { SelectInput } from "./components/SelectInput";
 

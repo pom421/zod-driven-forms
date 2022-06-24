@@ -1,12 +1,14 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Config,
   isUserUIElement,
   JSONSchemaTypes,
   NormalizedUIElement,
 } from "../types.d";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
 import { generateSchema } from "@anatine/zod-openapi";
 import { buildComponent } from "../component-builder";
 
