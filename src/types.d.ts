@@ -31,7 +31,7 @@ type SingleProperty<T extends z.ZodType<any, any, any>> = keyof z.input<T>;
 // L'utilisateur renseigne des éléments supplémentaire pour le champ.
 export type UserUIElement<T extends z.ZodType<any, any, any>> = {
   id: SingleProperty<T>;
-  uiComponent?: string | undefined;
+  uiComponent?: "datepicker" | "number" | undefined;
   label?: string | undefined;
   placeholder?: string | undefined;
 };
@@ -45,10 +45,11 @@ export type JSONSchemaTypes<T extends z.ZodType<any, any, any>> =
       [key in SingleProperty<T>]: JsonElement;
     };
 
+/** Custom guard to distinguish UserUIElement and string */
 export function isUserUIElement<T extends z.ZodType<any, any, any>>(
-  element: any
+  element: SingleProperty<T> | UserUIElement<T>
 ): element is UserUIElement<T> {
-  return typeof element?.id === "string" && element.id.lengh;
+  return typeof element?.id === "string" && element.id.length;
 }
 
 export type ZodErrors<T extends z.ZodType<any, any, any>> = {

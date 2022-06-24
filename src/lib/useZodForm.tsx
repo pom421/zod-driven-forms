@@ -1,6 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Config, isUserUIElement, JSONSchemaTypes } from "../types.d";
+import {
+  Config,
+  isUserUIElement,
+  JSONSchemaTypes,
+  NormalizedUIElement,
+} from "../types.d";
 import { z } from "zod";
 import { generateSchema } from "@anatine/zod-openapi";
 import { buildComponent } from "../component-builder";
@@ -8,7 +13,7 @@ import { buildComponent } from "../component-builder";
 // Créer tous les éléments et leur donner la même forme.
 function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   config: Config<T>
-) {
+): Array<NormalizedUIElement<T>> {
   const { properties } = generateSchema(config.schema);
 
   if (!properties) throw new Error("Pas de propriété trouvée dans le schéma");
@@ -16,40 +21,32 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   // Clone de l'ensemble des champs.
   const propertiesClone = { ...properties } as JSONSchemaTypes<T>;
 
-  console.log("propertiesClone", JSON.stringify(propertiesClone, null, 2));
-
   // On parcourt les éléments
   let res = config.ui.map((elt) => {
     // Cas string.
     if (!isUserUIElement<T>(elt)) {
-      delete propertiesClone[elt];
-
-      console.log(" propertiesClone[elt].type", propertiesClone[elt].type);
-
-      return {
+      const element = {
         id: elt,
-        label: "",
         type: propertiesClone[elt].type,
       };
+      delete propertiesClone[elt];
+      return element;
     } else {
       // Cas élément UIElement.
-      delete propertiesClone[elt.id];
-
-      console.log(
-        " propertiesClone[elt.id].type",
-        propertiesClone[elt.id].type
-      );
-      return {
+      const element = {
         ...elt,
         type: propertiesClone[elt.id].type,
       };
+
+      delete propertiesClone[elt.id];
+
+      return element;
     }
   });
 
   // On ajoute les champs qui n'ont pas été renseignés explicitement dans config.ui.
   res.concat(
     Object.entries(propertiesClone).map((elt) => {
-      console.log("elt[1].type", elt[1].type);
       return {
         id: elt[0],
         label: "",
@@ -71,13 +68,21 @@ export function useZodForm<T extends z.ZodType<any, any, any>>(
 
   const normalizedElements = buildNormalizedUIElements(config);
 
-  const generatedUIFields = normalizedElements.map(({ id, type, label }) => {
-    return buildComponent({
-      key: id as string,
-      type,
-      label,
-    });
-  });
+  console.debug(
+    "normalizedElements",
+    JSON.stringify(normalizedElements, null, 2)
+  );
+
+  const generatedUIFields = normalizedElements.map(
+    ({ id, type, label, uiComponent }) => {
+      return buildComponent({
+        key: id as string,
+        type,
+        label,
+        uiComponent,
+      });
+    }
+  );
 
   return {
     generatedUIFields,

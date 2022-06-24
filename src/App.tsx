@@ -39,8 +39,6 @@ import { formatZodErrors } from "./utils/debug";
  * - select autocomplete asynchrone ?
  */
 
-console.log("isEqual", isEqual(true, "true"));
-
 // const petPersons = ["cat", "dog", "bird", "none"] as const;
 const petPersons = ["cat", "dog", "bird", "none"] as const;
 
@@ -54,7 +52,7 @@ const userSchema = z.object({
     .refine((val) => val > 18, { message: "Vous devez être majeur" }),
   date: z
     .string()
-    .nonempty({ message: "La date est requise" })
+    .min(1, { message: "La date est requise" })
     // 9 - En sortie, ça sera une vraie Date
     .transform((val) => new Date(val))
     // 10 - contrôle pour vérifier que c'est une représentation OK d'une date
@@ -119,10 +117,11 @@ const config: Config<typeof userSchema> = {
   },
   */
   ui: [
-    "age",
+    { id: "age", label: "Votre âge", uiComponent: "number" },
     {
       id: "date",
       label: "Date de fin",
+      uiComponent: "datepicker",
     },
     {
       id: "admin",
@@ -145,21 +144,20 @@ let renderCount = 0;
 export default function App() {
   renderCount++;
 
-  console.log("nb renders", renderCount);
+  console.debug("nb renders", renderCount);
 
   const methods = useZodForm(config);
 
   const {
     handleSubmit,
     watch,
-    register,
     formState: { errors },
     generatedUIFields,
   } = methods;
 
-  console.log("generatedUIFields", generatedUIFields);
+  console.debug("generatedUIFields", generatedUIFields);
 
-  const onSubmit = (data: UserFormInputSchema) => console.log(data);
+  const onSubmit = (data: UserFormInputSchema) => console.debug(data);
 
   return (
     <FormProvider {...methods}>
@@ -218,6 +216,7 @@ export default function App() {
             2
           )}
         </pre>
+        <pre>{JSON.stringify(watch(), null, 2)}</pre>
       </form>
     </FormProvider>
   );
