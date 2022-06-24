@@ -26,3 +26,10 @@ Les inputs suivants sont pris en charge :
 - boutons groupe pour liste de choix fermée (ce widget et le précédent pourront tous les 2 choisir dans un zod enum, donc 2 façons de rentrer les mêmes données)
 - messages d'erreur
 - select autocomplete asynchrone ?
+
+# Installation
+
+```
+yarn install
+yarn start
+```
