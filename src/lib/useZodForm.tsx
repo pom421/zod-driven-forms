@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { generateSchema } from "@anatine/zod-openapi";
-import { buildComponent } from "../component-builder";
+import { buildComponent } from "./component-builder";
 
 // Créer tous les éléments et leur donner la même forme.
 function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
