@@ -21,6 +21,8 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   // Clone de l'ensemble des champs.
   const propertiesClone = { ...properties } as JSONSchemaTypes<T>;
 
+  console.debug("propertiesClone", JSON.stringify(propertiesClone, null, 2));
+
   // On parcourt les éléments
   let customisedElements = config.ui.map((elt) => {
     // Cas string.
@@ -28,6 +30,9 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
       const element = {
         id: elt,
         type: propertiesClone[elt].type,
+        ...(propertiesClone[elt].enum && {
+          options: propertiesClone[elt].enum,
+        }),
       };
       delete propertiesClone[elt];
       return element;
@@ -36,6 +41,9 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
       const element = {
         ...elt,
         type: propertiesClone[elt.id].type,
+        ...(propertiesClone[elt.id].enum && {
+          options: propertiesClone[elt.id].enum,
+        }),
       };
 
       delete propertiesClone[elt.id];
@@ -50,8 +58,8 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
     ...Object.entries(propertiesClone).map((elt) => {
       return {
         id: elt[0],
-        label: "",
         type: elt[1].type,
+        ...(elt[1].enum && { options: elt[1].enum }),
       };
     }),
   ];

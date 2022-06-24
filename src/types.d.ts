@@ -1,15 +1,6 @@
 import { FieldError } from "react-hook-form";
 import * as z from "zod";
 
-// TODO : à supprimer ?
-export type UISchema<T extends z.ZodType<any, any, any>> = {
-  [key in SingleProperty<T>]?: {
-    uiComponent?: string | undefined;
-    label?: string | undefined;
-    placeholder?: string | undefined;
-  };
-};
-
 // Le type de l'objet config, renseigné par l'utilisateur.
 export type Config<T extends z.ZodType<any, any, any>> = {
   schema: T;
@@ -18,20 +9,21 @@ export type Config<T extends z.ZodType<any, any, any>> = {
 };
 
 // Les informations récupérées de la génération du JSON Schema.
-// TODO: à compléter en fonction des besoins.
 export type JsonElement = {
   type: "string" | "boolean" | "integer";
   format?: string | undefined;
-  enum?: string | undefined;
+  enum?: string[] | undefined;
 };
 
 // L'utilisateur renseigne uniquement un nom de champ.
 type SingleProperty<T extends z.ZodType<any, any, any>> = keyof z.input<T>;
 
+export type UIComponent = "datepicker" | "textarea" | undefined;
+
 // L'utilisateur renseigne des éléments supplémentaire pour le champ.
 export type UserUIElement<T extends z.ZodType<any, any, any>> = {
   id: SingleProperty<T>;
-  uiComponent?: "datepicker" | undefined;
+  uiComponent?: UIComponent;
   label?: string | undefined;
   placeholder?: string | undefined;
   autocomplete?: string | undefined;

@@ -29,12 +29,13 @@ import { formatZodErrors } from "./utils/debug";
  * Côté front, les inputs créés automatiquement seront envoyés dans la console JS. Comme ça, on pourra aussi s'en servir comme d'un scaffold et tout customiser si besoin.
  *
  * Gérer les inputs :
- * - number avec composant UI flêche pour incrémenter ou décrémenter OK
- * - booléen OK
- * - date comme un string formaté ISO avec composant UI datepicker OK
- * - select avec liste de choix fermée (cf. ligne suivante)
- * - texte avec text et textArea
+ * - X number avec composant UI flêche pour incrémenter ou décrémenter
+ * - X booléen
+ * - X date comme un string formaté ISO avec composant UI datepicker
+ * - X texte avec text et textArea
+ * - X select avec liste de choix fermée
  * - boutons groupe pour liste de choix fermée (ce widget et le précédent pourront tous les 2 choisir dans un zod enum, donc 2 façons de rentrer les mêmes données)
+ * - messages d'erreur
  * - select autocomplete asynchrone ?
  */
 
@@ -58,6 +59,10 @@ const userSchema = z.object({
     }),
   admin: z.boolean(),
   petPerson: z.enum(petPersons),
+  commentaire: z
+    .string()
+    .min(10, { message: "Votre message est trop petit" })
+    .max(256, { message: "Votre message est trop long" }),
 });
 
 type UserFormInputSchema = z.input<typeof userSchema>;
@@ -76,6 +81,8 @@ const config: Config<typeof userSchema> = {
       id: "admin",
       label: "Est-il admin ?",
     },
+    { id: "petPerson", label: "Votre animal de compagnie préféré" },
+    { id: "commentaire", label: "Votre commentaire", uiComponent: "textarea" },
   ],
   defaultValues: {
     nom: "John",
@@ -83,6 +90,7 @@ const config: Config<typeof userSchema> = {
     date: formatISO(new Date(), { representation: "date" }),
     admin: true,
     petPerson: "cat",
+    commentaire: "",
   },
 };
 
@@ -109,19 +117,6 @@ export default function App() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* <p>
-          <label>
-            Pet preference
-            <select {...register("petPerson")}>
-              {petPersons.map((elt) => (
-                <option key={elt} value={elt}>
-                  {elt}
-                </option>
-              ))}
-            </select>
-          </label>
-        </p>
- */}
         <div style={{ display: "flex", flexDirection: "column" }}>
           {generatedUIFields}
         </div>
