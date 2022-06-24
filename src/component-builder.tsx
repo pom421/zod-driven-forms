@@ -9,6 +9,13 @@ import { TextInput } from "./components/TextInput";
 import { TextAreaInput } from "./components/TextAreaInput";
 import { SelectInput } from "./components/SelectInput";
 
+/**
+ * Note :
+ * - une value d'un input html est forcément un string, string[], number ou undefined.
+ * React.InputHTMLAttributes<HTMLInputElement>.value?: string | number | readonly string[] | undefined
+ *
+ */
+
 export function buildComponent({
   key,
   type,
