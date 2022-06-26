@@ -4,15 +4,17 @@ import { Controller, useFormContext } from "react-hook-form";
 export function BooleanInput({
   name,
   label = "Label",
+  required,
 }: {
   name: string;
   label?: string | undefined;
+  required: boolean;
 }) {
   const { control } = useFormContext(); // retrieve all hook methods
 
   return (
     <label>
-      {label}
+      {label} {required ? "*" : ""}
       <Controller
         control={control}
         name={name}

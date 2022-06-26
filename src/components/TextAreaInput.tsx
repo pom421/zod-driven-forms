@@ -6,17 +6,19 @@ export function TextAreaInput({
   label = "Label",
   autocomplete = "off",
   placeholder = "",
+  required,
 }: {
   name: string;
   label: string | undefined;
   autocomplete?: string | undefined;
   placeholder?: string | undefined;
+  required: boolean;
 }) {
   const { register } = useFormContext(); // retrieve all hook methods
 
   return (
     <label>
-      {label}
+      {label} {required ? "*" : ""}
       <br />
       <textarea
         {...register(name)}

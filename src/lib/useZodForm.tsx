@@ -16,7 +16,7 @@ import { buildComponent } from "./component-builder";
 function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
   config: Config<T>
 ): Array<NormalizedUIElement<T>> {
-  const { properties } = generateSchema(config.schema);
+  const { properties, required } = generateSchema(config.schema);
 
   if (!properties) throw new Error("Pas de propriété trouvée dans le schéma");
 
@@ -35,6 +35,7 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
         ...(propertiesClone[elt].enum && {
           options: propertiesClone[elt].enum,
         }),
+        required: required?.includes(elt as string) || false,
       };
       delete propertiesClone[elt];
       return element;
@@ -46,6 +47,7 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
         ...(propertiesClone[elt.id].enum && {
           options: propertiesClone[elt.id].enum,
         }),
+        required: required?.includes(elt.id as string) || false,
       };
 
       delete propertiesClone[elt.id];
@@ -62,6 +64,7 @@ function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
         id: elt[0],
         type: elt[1].type,
         ...(elt[1].enum && { options: elt[1].enum }),
+        required: required?.includes(elt[0]) || false,
       };
     }),
   ];

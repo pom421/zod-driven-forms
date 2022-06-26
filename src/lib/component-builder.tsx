@@ -24,6 +24,7 @@ export function buildComponent({
   placeholder,
   autocomplete,
   options,
+  required,
 }: {
   key: string;
   type: string;
@@ -32,36 +33,45 @@ export function buildComponent({
   placeholder?: string | undefined;
   autocomplete?: string | undefined;
   options?: string[] | undefined;
+  required: boolean;
 }) {
   const hasOptions = options && options.length >= 1;
 
   return match([type, uiComponent, hasOptions])
     .with(["boolean", P._, P._], () => (
-      <BooleanInput key={key} name={key} label={label} />
+      <BooleanInput key={key} name={key} label={label} required={required} />
     ))
     .with(["integer", P._, P._], () => (
       <NumberInput
         key={key}
         name={key}
         label={label}
+        required={required}
         autocomplete={autocomplete}
         placeholder={placeholder}
       />
     ))
     .with(["string", "datepicker", P._], () => (
-      <DateInput key={key} name={key} label={label} />
+      <DateInput key={key} name={key} label={label} required={required} />
     ))
     .with(["string", "textarea", P._], () => (
-      <TextAreaInput key={key} name={key} label={label} />
+      <TextAreaInput key={key} name={key} label={label} required={required} />
     ))
     .with(["string", P._, true], () => (
-      <SelectInput key={key} name={key} label={label} options={options!} />
+      <SelectInput
+        key={key}
+        name={key}
+        label={label}
+        required={required}
+        options={options!}
+      />
     ))
     .otherwise(() => (
       <TextInput
         key={key}
         name={key}
         label={label}
+        required={required}
         autocomplete={autocomplete}
         placeholder={placeholder}
       />

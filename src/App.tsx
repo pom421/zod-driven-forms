@@ -10,10 +10,9 @@ import { FormProvider } from "react-hook-form";
 import { useZodForm } from "./lib/useZodForm";
 import { formatZodErrors } from "./utils/debug";
 
-// Exemple avec le schéma zod suivant :
-
 const petPersons = ["cat", "dog", "bird", "none"] as const;
 
+// Exemple avec le schéma zod suivant :
 const userSchema = z.object({
   nom: z.string().min(4, { message: "4 caractères minimum pour le nom" }),
   age: z
@@ -31,11 +30,11 @@ const userSchema = z.object({
       message: "La date doit être postérieure au 1er janvier 2022",
     }),
   admin: z.boolean(),
-  petPerson: z.enum(petPersons),
+  petPerson: z.enum(petPersons).optional(),
   commentaire: z
     .string()
-    .min(10, { message: "Votre message est trop petit" })
-    .max(256, { message: "Votre message est trop long" }),
+    .max(256, { message: "Votre message est trop long" })
+    .optional(),
 });
 
 type UserFormInputSchema = z.input<typeof userSchema>;

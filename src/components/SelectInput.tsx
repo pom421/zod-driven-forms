@@ -7,18 +7,20 @@ export function SelectInput({
   autocomplete = "off",
   placeholder = "",
   options,
+  required,
 }: {
   name: string;
   label: string | undefined;
   autocomplete?: string | undefined;
   placeholder?: string | undefined;
   options: string[];
+  required: boolean;
 }) {
   const { register } = useFormContext(); // retrieve all hook methods
 
   return (
     <label>
-      {label}
+      {label} {required ? "*" : ""}
       <select
         {...register(name)}
         autoComplete={autocomplete}

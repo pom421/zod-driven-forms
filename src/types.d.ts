@@ -31,7 +31,7 @@ export type UserUIElement<T extends z.ZodType<any, any, any>> = {
 
 // Le type final, normalisé, qui servira pour nos traitements.
 export type NormalizedUIElement<T extends z.ZodType<any, any, any>> =
-  UserUIElement<T> & JsonElement;
+  UserUIElement<T> & JsonElement & { required: boolean };
 
 export type JSONSchemaTypes<T extends z.ZodType<any, any, any>> =
   | {
