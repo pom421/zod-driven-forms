@@ -16,22 +16,30 @@ export function SelectInput({
   options: string[];
   required: boolean;
 }) {
-  const { register } = useFormContext(); // retrieve all hook methods
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext(); // retrieve all hook methods
 
   return (
-    <label>
-      {label} {required ? "*" : ""}
-      <select
-        {...register(name)}
-        autoComplete={autocomplete}
-        placeholder={placeholder}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
+    <>
+      <label>
+        {label} {required ? "*" : ""}
+        <select
+          {...register(name)}
+          autoComplete={autocomplete}
+          placeholder={placeholder}
+        >
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </label>
+      <span style={{ color: "red" }}>
+        {errors?.[name] && errors[name].message}
+      </span>
+    </>
   );
 }

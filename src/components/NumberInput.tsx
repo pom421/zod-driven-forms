@@ -14,17 +14,25 @@ export function NumberInput({
   placeholder?: string | undefined;
   required: boolean;
 }) {
-  const { register } = useFormContext(); // retrieve all hook methods
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext(); // retrieve all hook methods
 
   return (
-    <label>
-      {label} {required ? "*" : ""}
-      <input
-        type="number"
-        {...register(name, { valueAsNumber: true })}
-        autoComplete={autocomplete}
-        placeholder={placeholder}
-      />
-    </label>
+    <>
+      <label>
+        {label} {required ? "*" : ""}
+        <input
+          type="number"
+          {...register(name, { valueAsNumber: true })}
+          autoComplete={autocomplete}
+          placeholder={placeholder}
+        />
+      </label>
+      <span style={{ color: "red" }}>
+        {errors?.[name] && errors[name].message}
+      </span>
+    </>
   );
 }

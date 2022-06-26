@@ -14,17 +14,26 @@ export function TextInput({
   placeholder?: string | undefined;
   required: boolean;
 }) {
-  const { register } = useFormContext(); // retrieve all hook methods
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext(); // retrieve all hook methods
 
   return (
-    <label>
-      {label} {required ? "*" : ""}
-      <input
-        type="text"
-        {...register(name)}
-        autoComplete={autocomplete}
-        placeholder={placeholder}
-      />
-    </label>
+    <>
+      <label>
+        xx
+        {label} {required ? "*" : ""}
+        <input
+          type="text"
+          {...register(name)}
+          autoComplete={autocomplete}
+          placeholder={placeholder}
+        />
+      </label>
+      <span style={{ color: "red" }}>
+        {errors?.[name] && errors[name].message}
+      </span>
+    </>
   );
 }

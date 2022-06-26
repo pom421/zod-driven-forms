@@ -10,7 +10,10 @@ export function BooleanInput({
   label?: string | undefined;
   required: boolean;
 }) {
-  const { control } = useFormContext(); // retrieve all hook methods
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext(); // retrieve all hook methods
 
   return (
     <label>
@@ -40,6 +43,9 @@ export function BooleanInput({
                 ref={ref}
               />
             </label>
+            <span style={{ color: "red" }}>
+              {errors?.[name] && errors[name].message}
+            </span>
           </>
         )}
       />
