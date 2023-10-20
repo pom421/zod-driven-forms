@@ -1,99 +1,91 @@
-import {
-  Config,
-  isUserUIElement,
-  JSONSchemaTypes,
-  NormalizedUIElement,
-} from "../types.d";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+import { match } from "ts-pattern";
 import { generateSchema } from "@anatine/zod-openapi";
-import { buildComponent } from "./component-builder";
+import { ConfigZDF, Meta, initZDF } from "../App";
+import { BooleanInput } from "../components/BooleanInput";
+import { NumberInput } from "../components/NumberInput";
+import { SelectInput } from "../components/SelectInput";
+import { TextInput } from "../components/TextInput";
 
-// Créer tous les éléments et leur donner la même forme.
-function buildNormalizedUIElements<T extends z.ZodType<any, any, any>>(
-  config: Config<T>
-): Array<NormalizedUIElement<T>> {
-  const { properties, required } = generateSchema(config.schema);
+type ExtractFromArray<T extends any[]> = T extends (infer U)[] ? U : never;
 
-  if (!properties) throw new Error("Pas de propriété trouvée dans le schéma");
+type OpenApiMeta = {
+  type: string;
+};
 
-  // Clone de l'ensemble des champs.
-  const propertiesClone = { ...properties } as JSONSchemaTypes<T>;
+const buildComponent = (field: Meta) => {
+  const key = field[0];
+  const options = field[1];
 
-  console.debug("propertiesClone", JSON.stringify(propertiesClone, null, 2));
+  const {
+    placeholder,
+    autocomplete,
+    label,
+    format,
+    type,
+    defaultValue,
+    required,
+  } = options;
 
-  // On parcourt les éléments
-  let customisedElements = config.ui.map((elt) => {
-    // Cas string.
-    if (!isUserUIElement<T>(elt)) {
-      const element = {
-        id: elt,
-        type: propertiesClone[elt].type,
-        ...(propertiesClone[elt].enum && {
-          options: propertiesClone[elt].enum,
-        }),
-        required: required?.includes(elt as string) || false,
-      };
-      delete propertiesClone[elt];
-      return element;
-    } else {
-      // Cas élément UIElement.
-      const element = {
-        ...elt,
-        type: propertiesClone[elt.id].type,
-        ...(propertiesClone[elt.id].enum && {
-          options: propertiesClone[elt.id].enum,
-        }),
-        required: required?.includes(elt.id as string) || false,
-      };
-
-      delete propertiesClone[elt.id];
-
-      return element;
-    }
-  });
-
-  // On ajoute les champs qui n'ont pas été renseignés explicitement dans config.ui.
-  return [
-    ...customisedElements,
-    ...Object.entries(propertiesClone).map((elt) => {
-      return {
-        id: elt[0],
-        type: elt[1].type,
-        ...(elt[1].enum && { options: elt[1].enum }),
-        required: required?.includes(elt[0]) || false,
-      };
-    }),
-  ];
-}
+  return (
+    match([options.type])
+      .with(["boolean"], () => (
+        <BooleanInput key={key} name={key} label={label} required={required} />
+      ))
+      .with(["integer"], () => (
+        <NumberInput
+          key={key}
+          name={key}
+          label={label}
+          required={required}
+          autocomplete={autocomplete}
+          placeholder={placeholder}
+        />
+      ))
+      // .with(["string"], () => (
+      //   <SelectInput
+      //     key={key}
+      //     name={key}
+      //     label={label}
+      //     required={required}
+      //     options={options!}
+      //   />
+      // ))
+      .otherwise(() => (
+        <TextInput
+          key={key}
+          name={key}
+          label={label}
+          required={required}
+          autocomplete={autocomplete}
+          placeholder={placeholder}
+        />
+      ))
+  );
+};
 
 export function useZodForm<T extends z.ZodType<any, any, any>>(
-  config: Config<T>
+  config: ConfigZDF
 ) {
+  // Should be OK if all subschemas implements a .default() method.
+  const defaultValues = config.schema.safeParse({});
+
   const helpersHookForm = useForm({
     resolver: zodResolver(config.schema),
-    defaultValues: config.defaultValues,
+    defaultValues: defaultValues.success ? defaultValues.data : {},
   });
 
-  const normalizedElements = buildNormalizedUIElements(config);
+  const components = [];
 
-  console.debug(
-    "normalizedElements",
-    JSON.stringify(normalizedElements, null, 2)
-  );
-
-  const generatedUIFields = normalizedElements.map(({ id, ...rest }) => {
-    return buildComponent({
-      key: id as string,
-      ...rest,
-    });
-  });
+  for (const field of config.meta) {
+    components.push(buildComponent(field));
+  }
 
   return {
-    generatedUIFields,
+    components,
     ...helpersHookForm,
   };
 }

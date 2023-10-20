@@ -22,7 +22,6 @@ export function TextInput({
   return (
     <>
       <label>
-        xx
         {label} {required ? "*" : ""}
         <input
           type="text"
