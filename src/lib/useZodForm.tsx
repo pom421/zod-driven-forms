@@ -1,34 +1,21 @@
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { match } from "ts-pattern";
 import { generateSchema } from "@anatine/zod-openapi";
-import { ConfigZDF, Meta, initZDF } from "../App";
+import { SchemaObject } from "openapi3-ts";
+import { match } from "ts-pattern";
+import { Meta } from "../App";
 import { BooleanInput } from "../components/BooleanInput";
 import { NumberInput } from "../components/NumberInput";
-import { SelectInput } from "../components/SelectInput";
 import { TextInput } from "../components/TextInput";
-
-type ExtractFromArray<T extends any[]> = T extends (infer U)[] ? U : never;
-
-type OpenApiMeta = {
-  type: string;
-};
+import { SingleProperty } from "../types";
 
 const buildComponent = (field: Meta) => {
   const key = field[0];
   const options = field[1];
 
-  const {
-    placeholder,
-    autocomplete,
-    label,
-    format,
-    type,
-    defaultValue,
-    required,
-  } = options;
+  const { placeholder, autocomplete, label, required } = options;
 
   return (
     match([options.type])
@@ -67,9 +54,38 @@ const buildComponent = (field: Meta) => {
   );
 };
 
-export function useZodForm<T extends z.ZodType<any, any, any>>(
-  config: ConfigZDF
+export function useZodForm<T extends z.AnyZodObject>(
+  schema: T,
+  ui: (
+    | [SingleProperty<T>]
+    | [SingleProperty<T>, { placeholder?: string; autocomplete?: string }]
+  )[]
 ) {
+  // zod-openapi is able to infer type and format (like string and format email).
+  const { properties, required } = generateSchema(schema);
+
+  const config = {
+    schema,
+    meta: ui.map((field) => {
+      const key = field[0] as string;
+      const options = field[1];
+
+      return [
+        key,
+        {
+          type: (properties?.[key] as SchemaObject)?.type,
+          format: (properties?.[key] as SchemaObject)?.format,
+          // User needs to provide a default value for each field.
+          defaultValue: schema.shape[key].default,
+          label: schema.shape[key].description ?? "",
+          placeholder: options?.placeholder ?? "",
+          autocomplete: options?.autocomplete ?? "off",
+          required: required ? required.includes(key as string) : false,
+        },
+      ] as Meta; // TODO: fix this type.
+    }),
+  };
+
   // Should be OK if all subschemas implements a .default() method.
   const defaultValues = config.schema.safeParse({});
 
