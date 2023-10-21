@@ -82,7 +82,7 @@ export default function App() {
         customComponent: "datepicker",
       },
     ],
-    ["admin"],
+    "admin",
     [
       "petPerson",
       {

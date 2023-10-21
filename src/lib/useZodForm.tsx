@@ -88,6 +88,12 @@ const buildComponent = (field: Meta) => {
     ));
 };
 
+type ConfigOptions = {
+  placeholder?: string;
+  autocomplete?: string;
+  customComponent?: "datepicker" | "textarea";
+};
+
 /**
  * Wrapper around React Hook Form and builder of components based on zod schema.
  *
@@ -97,17 +103,7 @@ const buildComponent = (field: Meta) => {
  */
 export function useZodForm<T extends z.AnyZodObject>(
   schema: T,
-  ui: (
-    | [SingleProperty<T>]
-    | [
-        SingleProperty<T>,
-        {
-          placeholder?: string;
-          autocomplete?: string;
-          customComponent?: "datepicker" | "textarea";
-        }
-      ]
-  )[]
+  ui: (SingleProperty<T> | [SingleProperty<T>, ConfigOptions])[]
 ) {
   // zod-openapi is able to infer type and format (like string and format email).
   const { properties, required } = generateSchema(schema);
@@ -117,8 +113,14 @@ export function useZodForm<T extends z.AnyZodObject>(
   const config = {
     schema,
     meta: ui.map((field) => {
-      const key = field[0] as string;
-      const options = field[1];
+      const key =
+        typeof field === "string"
+          ? field
+          : (field as [string, ConfigOptions])[0];
+      const options =
+        typeof field === "string"
+          ? null
+          : (field as [string, ConfigOptions])[1];
       const values = (properties?.[key] as SchemaObject)?.enum;
 
       return [
