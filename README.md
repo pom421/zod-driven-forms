@@ -124,4 +124,5 @@ const methods = useZodForm(schema, [
 
 - typer correctement le retour de init, afin de récupérer le nom des champs dans onSubmit
 - voir comment injecter des custom components, comme des inputs chakra
-- accessibilité des cas d'erreu( aria-error)
+- accessibilité des cas d'erreur( aria-error)
+- commment packager dans un module npm ? Sachant que j'ai besoin de React/JSX pour faire les custom elements?

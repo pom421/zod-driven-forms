@@ -108,8 +108,6 @@ export function useZodForm<T extends z.AnyZodObject>(
   // zod-openapi is able to infer type and format (like string and format email).
   const { properties, required } = generateSchema(schema);
 
-  console.log("properties:", properties);
-
   const config = {
     schema,
     meta: ui.map((field) => {
