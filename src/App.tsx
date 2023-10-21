@@ -153,6 +153,10 @@ export default function App() {
           </details>
         </form>
       </FormProvider>
+
+      <p>
+        <a href="https://github.com/pom421/zod-driven-forms">GitHub</a>
+      </p>
     </div>
   );
 }
