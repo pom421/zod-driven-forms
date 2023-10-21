@@ -122,7 +122,6 @@ const methods = useZodForm(schema, [
 
 ### TODO
 
-- dans le 2ème param de useZodForm, quand on n'a pas d'option, on devrait accepter un string simple, plutôt qu'un tuple de 1 string
 - typer correctement le retour de init, afin de récupérer le nom des champs dans onSubmit
 - voir comment injecter des custom components, comme des inputs chakra
 - accessibilité des cas d'erreu( aria-error)

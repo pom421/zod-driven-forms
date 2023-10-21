@@ -6,12 +6,12 @@ import { generateSchema } from "@anatine/zod-openapi";
 import { SchemaObject } from "openapi3-ts";
 import { P, match } from "ts-pattern";
 import { BooleanInput } from "../components/BooleanInput";
-import { NumberInput } from "../components/NumberInput";
-import { TextInput } from "../components/TextInput";
-import { SingleProperty } from "../types";
 import { DateInput } from "../components/DateInput";
+import { NumberInput } from "../components/NumberInput";
 import { SelectInput } from "../components/SelectInput";
 import { TextAreaInput } from "../components/TextAreaInput";
+import { TextInput } from "../components/TextInput";
+import { SingleProperty } from "../types";
 
 export type Meta = [
   string,
