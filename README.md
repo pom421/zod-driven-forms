@@ -117,5 +117,6 @@ const configZodForm: ConfigZDF = initZDF(
 
 ### TODO
 
-- ajouter des customComponent dans la config, pour pouvoir afficher un textarea, un datepicker et un select
 - typer correctement le retour de init, afin de récupérer le nom des champs dans onSubmit
+- voir comment injecter des custom components, comme des inputs chakra
+- accessibilité des cas d'erreu( aria-error)
