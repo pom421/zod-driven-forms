@@ -4,43 +4,25 @@ import { formatISO, isAfter } from "date-fns";
 import { FormProvider } from "react-hook-form";
 import * as z from "zod";
 
-import { SchemaObject } from "openapi3-ts";
 import { useZodForm } from "./lib/useZodForm";
 import { formatZodErrors } from "./utils/debug";
 
-const petPersons = ["cat", "dog", "bird", "none"] as const;
-
-export type Meta = [
-  string,
-  {
-    defaultValue: unknown;
-    required: boolean;
-    // Récupération du type et format depuis le zod-openapi.
-    type: SchemaObject["type"];
-    format: SchemaObject["format"];
-    placeholder: string;
-    label: string;
-    autocomplete: string;
-  }
-];
-
-export type ConfigZDF = {
-  schema: z.AnyZodObject;
-  meta: Meta[];
-};
+const petPersons = ["cat", "dog", "bird"] as const;
 
 const schema = z.object({
   nom: z
     .string()
     .min(4, { message: "4 caractères minimum pour le nom" })
     .default("John")
+    // describe will be used to generate the label.
     .describe("Votre nom"),
+  // Type number will be displayed with a number input.
   age: z
     .number({ invalid_type_error: "Un nombre est attendu" })
     .int({ message: "Un nombre entier est attendu" })
     .refine((val) => val >= 18, { message: "Vous devez être majeur" })
     .default(18)
-    .describe("Votre âge"),
+    .describe("Votre âge (input type number ✨✨)"),
   date: z
     .string()
     .min(1, { message: "La date est requise" })
@@ -52,19 +34,22 @@ const schema = z.object({
       message: "La date doit être postérieure au 1er janvier 2022",
     })
     .default(formatISO(new Date(), { representation: "date" }))
-    .describe("Date de fin"),
-  admin: z.boolean().describe("Est-il admin ?"),
+    .describe(
+      "Date de fin (input type date avec un datepicker (cf. champ ui) ✨✨)"
+    ),
+  admin: z.boolean().describe("Est-ce un admin ? (input type checkbox ✨✨)"),
   petPerson: z
+    // enum will be displayed as a select.
     .enum(petPersons)
     .optional()
     .default("cat")
-    .describe("Votre animal de compagnie préféré"),
+    .describe("Votre animal de compagnie préféré (select ✨✨)"),
   commentaire: z
     .string()
     .max(256, { message: "Votre message est trop long" })
     .optional()
     .default("")
-    .describe("Votre commentaire"),
+    .describe("Votre commentaire (textarea ✨✨)"),
 });
 
 let renderCount = 0;
@@ -76,7 +61,6 @@ export default function App() {
 
   console.debug("nb renders", renderCount);
 
-  // const methods = useZodForm(config);
   const methods = useZodForm(schema, [
     [
       "nom",
@@ -95,6 +79,7 @@ export default function App() {
       "date",
       {
         placeholder: "ex: 2021-01-01",
+        customComponent: "datepicker",
       },
     ],
     ["admin"],
@@ -108,6 +93,7 @@ export default function App() {
       "commentaire",
       {
         placeholder: "ex: J'aime les chats",
+        customComponent: "textarea",
       },
     ],
   ]);
@@ -117,6 +103,7 @@ export default function App() {
     watch,
     formState: { errors },
     components,
+    openapi,
   } = methods;
 
   console.debug("components", components);
@@ -124,25 +111,48 @@ export default function App() {
   const onSubmit = (data: unknown) => console.debug(data);
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          {components}
-        </div>
+    <div style={{ margin: 20 }}>
+      <h1>Zod driven form</h1>
+      <p>Ce formulaire est généré dynamiquement, à partir d'un schéma zod.</p>
+      {/* TODO: trouver moyen d'afficher le schéma utilisé... */}
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 5,
+            }}
+          >
+            {components}
+          </div>
 
-        <input type="submit" />
+          <input type="submit" />
 
-        <pre>
-          {JSON.stringify(
-            {
-              errors: formatZodErrors(errors),
-            },
-            null,
-            2
-          )}
-        </pre>
-        <pre>{JSON.stringify(watch(), null, 2)}</pre>
-      </form>
-    </FormProvider>
+          <br />
+          <details>
+            <summary>Debug RHF</summary>
+            <fieldset>
+              <pre>
+                {JSON.stringify(
+                  {
+                    errors: formatZodErrors(errors),
+                  },
+                  null,
+                  2
+                )}
+              </pre>
+              <pre>{JSON.stringify(watch(), null, 2)}</pre>
+            </fieldset>
+          </details>
+          <details>
+            <summary>Debug openapi</summary>
+            <fieldset>
+              <pre>{JSON.stringify(openapi, null, 2)}</pre>
+            </fieldset>
+          </details>
+        </form>
+      </FormProvider>
+    </div>
   );
 }

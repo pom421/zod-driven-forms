@@ -18,6 +18,7 @@ export function BooleanInput({
   return (
     <label>
       {label} {required ? "*" : ""}
+      <br />
       <Controller
         control={control}
         name={name}

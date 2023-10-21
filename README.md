@@ -95,6 +95,7 @@ const configZodForm: ConfigZDF = initZDF(
       "date",
       {
         placeholder: "ex: 2021-01-01",
+        customComponent: "datepicker",
       },
     ],
     ["admin"],

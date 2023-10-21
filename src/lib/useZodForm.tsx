@@ -4,71 +4,122 @@ import { z } from "zod";
 
 import { generateSchema } from "@anatine/zod-openapi";
 import { SchemaObject } from "openapi3-ts";
-import { match } from "ts-pattern";
-import { Meta } from "../App";
+import { P, match } from "ts-pattern";
 import { BooleanInput } from "../components/BooleanInput";
 import { NumberInput } from "../components/NumberInput";
 import { TextInput } from "../components/TextInput";
 import { SingleProperty } from "../types";
+import { DateInput } from "../components/DateInput";
+import { SelectInput } from "../components/SelectInput";
+import { TextAreaInput } from "../components/TextAreaInput";
+
+export type Meta = [
+  string,
+  {
+    defaultValue: unknown;
+    required: boolean;
+    // Récupération du type et format depuis le zod-openapi.
+    type: SchemaObject["type"];
+    format: SchemaObject["format"];
+    placeholder: string;
+    label: string;
+    autocomplete: string;
+    customComponent?: string;
+    values?: string[];
+  }
+];
+
+export type ConfigZDF = {
+  schema: z.AnyZodObject;
+  meta: Meta[];
+};
 
 const buildComponent = (field: Meta) => {
   const key = field[0];
   const options = field[1];
 
-  const { placeholder, autocomplete, label, required } = options;
+  const {
+    placeholder,
+    autocomplete,
+    label,
+    required,
+    customComponent,
+    values,
+  } = options;
 
-  return (
-    match([options.type])
-      .with(["boolean"], () => (
-        <BooleanInput key={key} name={key} label={label} required={required} />
-      ))
-      .with(["integer"], () => (
-        <NumberInput
-          key={key}
-          name={key}
-          label={label}
-          required={required}
-          autocomplete={autocomplete}
-          placeholder={placeholder}
-        />
-      ))
-      // .with(["string"], () => (
-      //   <SelectInput
-      //     key={key}
-      //     name={key}
-      //     label={label}
-      //     required={required}
-      //     options={options!}
-      //   />
-      // ))
-      .otherwise(() => (
-        <TextInput
-          key={key}
-          name={key}
-          label={label}
-          required={required}
-          autocomplete={autocomplete}
-          placeholder={placeholder}
-        />
-      ))
-  );
+  return match([options.type, customComponent])
+    .with(["boolean", P._], () => (
+      <BooleanInput key={key} name={key} label={label} required={required} />
+    ))
+    .with(["integer", P._], () => (
+      <NumberInput
+        key={key}
+        name={key}
+        label={label}
+        required={required}
+        autocomplete={autocomplete}
+        placeholder={placeholder}
+      />
+    ))
+    .with(["string", "datepicker"], () => (
+      <DateInput key={key} name={key} label={label} required={required} />
+    ))
+    .with(["string", "textarea"], () => (
+      <TextAreaInput key={key} name={key} label={label} required={required} />
+    ))
+    .with(["string", "select"], () => (
+      <SelectInput
+        key={key}
+        name={key}
+        label={label}
+        required={required}
+        options={values!}
+      />
+    ))
+    .otherwise(() => (
+      <TextInput
+        key={key}
+        name={key}
+        label={label}
+        required={required}
+        autocomplete={autocomplete}
+        placeholder={placeholder}
+      />
+    ));
 };
 
+/**
+ * Wrapper around React Hook Form and builder of components based on zod schema.
+ *
+ * @param schema The zod schema
+ * @param ui Optional UI configuration. The order of the fields in the array will be the order of the fields in the form.
+ * @returns Array of React components
+ */
 export function useZodForm<T extends z.AnyZodObject>(
   schema: T,
   ui: (
     | [SingleProperty<T>]
-    | [SingleProperty<T>, { placeholder?: string; autocomplete?: string }]
+    | [
+        SingleProperty<T>,
+        {
+          placeholder?: string;
+          autocomplete?: string;
+          customComponent?: "datepicker" | "textarea";
+        }
+      ]
   )[]
 ) {
   // zod-openapi is able to infer type and format (like string and format email).
   const { properties, required } = generateSchema(schema);
+
+  console.log("properties:", properties);
 
   const config = {
     schema,
     meta: ui.map((field) => {
       const key = field[0] as string;
       const options = field[1];
+      const values = (properties?.[key] as SchemaObject)?.enum;
 
       return [
         key,
@@ -80,7 +131,10 @@ export function useZodForm<T extends z.AnyZodObject>(
           label: schema.shape[key].description ?? "",
           placeholder: options?.placeholder ?? "",
           autocomplete: options?.autocomplete ?? "off",
+          customComponent:
+            values && values.length > 0 ? "select" : options?.customComponent,
           required: required ? required.includes(key as string) : false,
+          values: (properties?.[key] as SchemaObject)?.enum,
         },
       ] as Meta; // TODO: fix this type.
     }),
@@ -102,6 +156,11 @@ export function useZodForm<T extends z.AnyZodObject>(
 
   return {
     components,
+    // Return all properties from React Hook Form.
     ...helpersHookForm,
+    openapi: {
+      properties,
+      required,
+    },
   };
 }
